@@ -1,0 +1,242 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "This AV receiver has already been configured with this infrared entity.",
+      "no_infrared_entities": "No infrared emitter or receiver entities were found. Set up an integration that provides one (for example ESPHome) first.",
+      "reconfigure_successful": "Re-configuration was successful"
+    },
+    "error": {
+      "missing_infrared_entity": "Select an infrared emitter or receiver."
+    },
+    "step": {
+      "user": {
+        "title": "Set up Sony AV receiver",
+        "description": "Select at least one infrared emitter or receiver to use with your Sony AV receiver.",
+        "data": {
+          "model": "Model",
+          "infrared_entity_id": "Infrared emitter",
+          "infrared_receiver_entity_id": "Infrared receiver"
+        },
+        "data_description": {
+          "model": "Optional: the model number, e.g. STR-DH820. Only used to name the device.",
+          "infrared_entity_id": "The infrared emitter used to send commands to the receiver.",
+          "infrared_receiver_entity_id": "Optional: an infrared receiver that picks up the original Sony remote, so its key presses show up as events."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Sony AV receiver",
+        "description": "Change the model and infrared entities used by your Sony AV receiver.",
+        "data": {
+          "model": "Model",
+          "infrared_entity_id": "Infrared emitter",
+          "infrared_receiver_entity_id": "Infrared receiver"
+        },
+        "data_description": {
+          "model": "Optional: the model number, e.g. STR-DH820. Only used to name the device.",
+          "infrared_entity_id": "The infrared emitter used to send commands to the receiver.",
+          "infrared_receiver_entity_id": "Optional: an infrared receiver that picks up the original Sony remote, so its key presses show up as events."
+        }
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "power": {
+        "name": "Power"
+      },
+      "power_on": {
+        "name": "Power on"
+      },
+      "power_off": {
+        "name": "Power off"
+      },
+      "sleep": {
+        "name": "Sleep"
+      },
+      "volume_up": {
+        "name": "Volume up"
+      },
+      "volume_down": {
+        "name": "Volume down"
+      },
+      "mute": {
+        "name": "Mute"
+      },
+      "bd_dvd": {
+        "name": "BD/DVD"
+      },
+      "game": {
+        "name": "Game"
+      },
+      "sat_catv": {
+        "name": "SAT/CATV"
+      },
+      "video": {
+        "name": "Video"
+      },
+      "video_3": {
+        "name": "Video 3"
+      },
+      "tv": {
+        "name": "TV"
+      },
+      "sa_cd_cd": {
+        "name": "SA-CD/CD"
+      },
+      "tuner": {
+        "name": "Tuner"
+      },
+      "preset_up": {
+        "name": "Preset up"
+      },
+      "preset_down": {
+        "name": "Preset down"
+      },
+      "num_0": {
+        "name": "0"
+      },
+      "num_1": {
+        "name": "1"
+      },
+      "num_2": {
+        "name": "2"
+      },
+      "num_3": {
+        "name": "3"
+      },
+      "num_4": {
+        "name": "4"
+      },
+      "num_5": {
+        "name": "5"
+      },
+      "num_6": {
+        "name": "6"
+      },
+      "num_7": {
+        "name": "7"
+      },
+      "num_8": {
+        "name": "8"
+      },
+      "num_9": {
+        "name": "9"
+      },
+      "two_ch": {
+        "name": "2CH/Analog direct"
+      },
+      "afd": {
+        "name": "A.F.D."
+      },
+      "movie": {
+        "name": "Movie"
+      },
+      "music": {
+        "name": "Music"
+      },
+      "amp_menu": {
+        "name": "Amp menu"
+      },
+      "up": {
+        "name": "Up"
+      },
+      "down": {
+        "name": "Down"
+      },
+      "left": {
+        "name": "Left"
+      },
+      "right": {
+        "name": "Right"
+      },
+      "display": {
+        "name": "Display"
+      },
+      "test_tone": {
+        "name": "Test tone"
+      }
+    },
+    "event": {
+      "received_command": {
+        "name": "Received command",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "power": "Power",
+              "power_on": "Power on",
+              "power_off": "Power off",
+              "sleep": "Sleep",
+              "volume_up": "Volume up",
+              "volume_down": "Volume down",
+              "mute": "Mute",
+              "bd_dvd": "BD/DVD",
+              "game": "Game",
+              "sat_catv": "SAT/CATV",
+              "video": "Video",
+              "video_3": "Video 3",
+              "tv": "TV",
+              "sa_cd_cd": "SA-CD/CD",
+              "tuner": "Tuner",
+              "preset_up": "Preset up",
+              "preset_down": "Preset down",
+              "num_1": "1",
+              "num_2": "2",
+              "num_3": "3",
+              "num_4": "4",
+              "num_5": "5",
+              "num_6": "6",
+              "num_7": "7",
+              "num_8": "8",
+              "num_9": "9",
+              "num_0": "0",
+              "two_ch": "2CH/Analog direct",
+              "afd": "A.F.D.",
+              "movie": "Movie",
+              "music": "Music",
+              "amp_menu": "Amp menu",
+              "nav_up": "Up",
+              "nav_down": "Down",
+              "nav_left": "Left",
+              "nav_right": "Right",
+              "display": "Display",
+              "test_tone": "Test tone",
+              "unknown": "Unknown"
+            }
+          }
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "invalid_source": {
+      "message": "Unknown source {source}."
+    },
+    "invalid_sirc": {
+      "message": "Invalid Sony SIRC code: {error}."
+    }
+  },
+  "services": {
+    "send_sirc": {
+      "name": "Send SIRC code",
+      "description": "Sends a raw Sony SIRC code to the receiver, for keys that have no button.",
+      "fields": {
+        "address": {
+          "name": "Address",
+          "description": "SIRC device address, as shown by the received command event."
+        },
+        "address_bits": {
+          "name": "Address bits",
+          "description": "5 for 12-bit, 8 for 15-bit or 13 for 20-bit SIRC."
+        },
+        "command": {
+          "name": "Command",
+          "description": "SIRC command (0-127)."
+        },
+        "frames": {
+          "name": "Frames",
+          "description": "How many times the frame is repeated. Sony devices need at least 3."
+        }
+      }
+    }
+  }
+}

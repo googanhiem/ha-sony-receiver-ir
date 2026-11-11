@@ -1,0 +1,4 @@
+pytest-homeassistant-custom-component
+infrared-protocols
+pytest-cov
+ruff

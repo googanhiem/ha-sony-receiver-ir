@@ -1,0 +1,38 @@
+send_sirc:
+  target:
+    entity:
+      integration: sony_receiver_ir
+      domain: media_player
+  fields:
+    address:
+      required: true
+      example: 1
+      selector:
+        number:
+          min: 0
+          max: 8191
+          mode: box
+    address_bits:
+      required: true
+      default: 5
+      selector:
+        select:
+          options:
+            - "5"
+            - "8"
+            - "13"
+    command:
+      required: true
+      example: 21
+      selector:
+        number:
+          min: 0
+          max: 127
+          mode: box
+    frames:
+      default: 3
+      selector:
+        number:
+          min: 1
+          max: 20
+          mode: box

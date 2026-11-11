@@ -1,0 +1,130 @@
+{
+  "entity": {
+    "button": {
+      "power": {
+        "default": "mdi:power"
+      },
+      "power_on": {
+        "default": "mdi:power-on"
+      },
+      "power_off": {
+        "default": "mdi:power-off"
+      },
+      "sleep": {
+        "default": "mdi:sleep"
+      },
+      "volume_up": {
+        "default": "mdi:volume-plus"
+      },
+      "volume_down": {
+        "default": "mdi:volume-minus"
+      },
+      "mute": {
+        "default": "mdi:volume-mute"
+      },
+      "bd_dvd": {
+        "default": "mdi:disc-player"
+      },
+      "game": {
+        "default": "mdi:gamepad-variant"
+      },
+      "sat_catv": {
+        "default": "mdi:satellite-variant"
+      },
+      "video": {
+        "default": "mdi:video-input-component"
+      },
+      "video_3": {
+        "default": "mdi:video-input-component"
+      },
+      "tv": {
+        "default": "mdi:television"
+      },
+      "sa_cd_cd": {
+        "default": "mdi:disc"
+      },
+      "tuner": {
+        "default": "mdi:radio"
+      },
+      "preset_up": {
+        "default": "mdi:chevron-up"
+      },
+      "preset_down": {
+        "default": "mdi:chevron-down"
+      },
+      "num_0": {
+        "default": "mdi:numeric-0"
+      },
+      "num_1": {
+        "default": "mdi:numeric-1"
+      },
+      "num_2": {
+        "default": "mdi:numeric-2"
+      },
+      "num_3": {
+        "default": "mdi:numeric-3"
+      },
+      "num_4": {
+        "default": "mdi:numeric-4"
+      },
+      "num_5": {
+        "default": "mdi:numeric-5"
+      },
+      "num_6": {
+        "default": "mdi:numeric-6"
+      },
+      "num_7": {
+        "default": "mdi:numeric-7"
+      },
+      "num_8": {
+        "default": "mdi:numeric-8"
+      },
+      "num_9": {
+        "default": "mdi:numeric-9"
+      },
+      "two_ch": {
+        "default": "mdi:speaker-multiple"
+      },
+      "afd": {
+        "default": "mdi:surround-sound"
+      },
+      "movie": {
+        "default": "mdi:movie-open"
+      },
+      "music": {
+        "default": "mdi:music"
+      },
+      "amp_menu": {
+        "default": "mdi:menu"
+      },
+      "up": {
+        "default": "mdi:arrow-up"
+      },
+      "down": {
+        "default": "mdi:arrow-down"
+      },
+      "left": {
+        "default": "mdi:arrow-left"
+      },
+      "right": {
+        "default": "mdi:arrow-right"
+      },
+      "display": {
+        "default": "mdi:information-outline"
+      },
+      "test_tone": {
+        "default": "mdi:sine-wave"
+      }
+    },
+    "event": {
+      "received_command": {
+        "default": "mdi:remote"
+      }
+    }
+  },
+  "services": {
+    "send_sirc": {
+      "service": "mdi:remote"
+    }
+  }
+}
