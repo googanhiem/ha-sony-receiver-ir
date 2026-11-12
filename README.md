@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="custom_components/sony_receiver_ir/brand/dark_logo.png">
+    <img src="custom_components/sony_receiver_ir/brand/logo.png" alt="Sony" width="240">
+  </picture>
+</p>
+
 # Sony Receiver IR for Home Assistant
 
 A Home Assistant custom integration that controls **Sony AV receivers**
@@ -180,6 +187,15 @@ uv venv --python 3.14 .venv
 uv pip install --python .venv -r requirements_test.txt
 .venv/bin/pytest
 ```
+
+## Trademarks
+
+Sony and the Sony logo are trademarks of Sony Group Corporation. The logo
+in `brand/` is the Sony image from the
+[Home Assistant brands repository](https://github.com/home-assistant/brands/tree/master/core_brands/sony)
+and is used only to identify the devices this integration controls. This is
+an unofficial, community project and is not affiliated with or endorsed by
+Sony.
 
 ## License
 
