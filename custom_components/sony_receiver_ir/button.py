@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .codes import SonyReceiverCode
-from .const import CONF_INFRARED_ENTITY_ID
+from .const import CONF_INFRARED_ENTITY_ID, RENAMEABLE_INPUTS, input_name
 from .entity import SonyReceiverIrEntity
 
 PARALLEL_UPDATES = 1
@@ -108,6 +108,9 @@ class SonyReceiverIrButton(
         super().__init__(entry, unique_id_suffix=description.key)
         self._infrared_emitter_entity_id = infrared_entity_id
         self.entity_description = description
+        option_key = f"name_{description.key}"
+        if option_key in RENAMEABLE_INPUTS and entry.options.get(option_key):
+            self._attr_name = input_name(entry.options, option_key)
 
     @override
     async def async_press(self) -> None:

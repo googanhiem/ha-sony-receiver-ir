@@ -1,6 +1,7 @@
 """Media player platform for the Sony Receiver IR integration."""
 
-from typing import override
+from collections.abc import Mapping
+from typing import Any, override
 
 from homeassistant.components.infrared import InfraredEmitterConsumerEntity
 from homeassistant.components.media_player import (
@@ -17,7 +18,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .codes import SIRC_FRAMES_PER_COMMAND, SonyReceiverCode, SonyRepeatedCommand
-from .const import CONF_INFRARED_ENTITY_ID, DOMAIN
+from .const import CONF_INFRARED_ENTITY_ID, DOMAIN, input_name
 from .entity import SonyReceiverIrEntity
 
 try:  # Home Assistant 2026.11+ validates with probatio.
@@ -42,15 +43,27 @@ SEND_SIRC_SCHEMA = {
     ),
 }
 
-SOURCE_TO_CODE: dict[str, SonyReceiverCode] = {
-    "BD/DVD": SonyReceiverCode.BD_DVD,
-    "GAME": SonyReceiverCode.GAME,
-    "SAT/CATV": SonyReceiverCode.SAT_CATV,
-    "VIDEO": SonyReceiverCode.VIDEO,
+# Codes of the renameable HDMI inputs, by option key.
+RENAMEABLE_INPUT_CODES: dict[str, SonyReceiverCode] = {
+    "name_bd_dvd": SonyReceiverCode.BD_DVD,
+    "name_game": SonyReceiverCode.GAME,
+    "name_sat_catv": SonyReceiverCode.SAT_CATV,
+    "name_video": SonyReceiverCode.VIDEO,
+}
+FIXED_INPUT_CODES: dict[str, SonyReceiverCode] = {
     "TV": SonyReceiverCode.TV,
     "SA-CD/CD": SonyReceiverCode.SA_CD_CD,
     "TUNER": SonyReceiverCode.TUNER,
 }
+
+
+def source_to_code(options: Mapping[str, Any]) -> dict[str, SonyReceiverCode]:
+    """Return the source list, using the custom input names from the options."""
+    sources = {
+        input_name(options, key): code for key, code in RENAMEABLE_INPUT_CODES.items()
+    }
+    sources.update(FIXED_INPUT_CODES)
+    return sources
 
 
 async def async_setup_entry(
@@ -98,7 +111,8 @@ class SonyReceiverIrMediaPlayer(
         self._infrared_emitter_entity_id = infrared_entity_id
         self._attr_state = MediaPlayerState.ON
         self._attr_source = None
-        self._attr_source_list = list(SOURCE_TO_CODE)
+        self._source_to_code = source_to_code(entry.options)
+        self._attr_source_list = list(self._source_to_code)
 
     @override
     async def async_added_to_hass(self) -> None:
@@ -108,7 +122,7 @@ class SonyReceiverIrMediaPlayer(
             return
         if last_state.state == MediaPlayerState.OFF:
             self._attr_state = MediaPlayerState.OFF
-        if (source := last_state.attributes.get("source")) in SOURCE_TO_CODE:
+        if (source := last_state.attributes.get("source")) in self._source_to_code:
             self._attr_source = source
 
     async def _send(self, code: SonyReceiverCode) -> None:
@@ -147,7 +161,7 @@ class SonyReceiverIrMediaPlayer(
     @override
     async def async_select_source(self, source: str) -> None:
         """Switch to an input using its discrete code."""
-        if (code := SOURCE_TO_CODE.get(source)) is None:
+        if (code := self._source_to_code.get(source)) is None:
             raise ServiceValidationError(
                 translation_domain=DOMAIN,
                 translation_key="invalid_source",

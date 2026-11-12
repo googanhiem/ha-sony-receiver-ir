@@ -48,13 +48,26 @@ Copy `custom_components/sony_receiver_ir` into your Home Assistant
 At least one emitter or receiver is required. You can change all of these
 later with *Reconfigure*.
 
+### Renaming the inputs
+
+The four HDMI inputs (**BD/DVD**, **GAME**, **SAT/CATV** and **VIDEO**) can
+be given your own names, for example *PS5* or *Apple TV*. Go to
+*Settings → Devices & services → Sony Receiver IR → Configure* and fill in
+a name for any of them. Leave a field empty to keep Sony's name.
+
+The new names are used in the media player's source list (so you can pick
+*PS5* in a dashboard or an automation) and on the matching buttons. The
+button entity IDs (e.g. `button.sony_av_receiver_game`) stay the same, so
+existing automations keep working. Each input needs a different name, which
+must also differ from TV, SA-CD/CD and TUNER.
+
 ## What you get
 
 All entities belong to one device, **Sony AV Receiver**.
 
 | Platform | Entity | Needs |
 | --- | --- | --- |
-| `media_player` | `media_player.sony_av_receiver`: on/off (discrete codes), volume step, mute, source select (BD/DVD, GAME, SAT/CATV, VIDEO, TV, SA-CD/CD, TUNER) | emitter |
+| `media_player` | `media_player.sony_av_receiver`: on/off (discrete codes), volume step, mute, source select (BD/DVD, GAME, SAT/CATV, VIDEO, TV, SA-CD/CD, TUNER; the four HDMI inputs can be renamed) | emitter |
 | `button` | One button per remote key (38 in total; see the table below) | emitter |
 | `event` | `event.sony_av_receiver_received_command`: fires with the key name when the original remote is used | receiver |
 | action | `sony_receiver_ir.send_sirc`: send any SIRC code | emitter |

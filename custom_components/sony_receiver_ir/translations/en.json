@@ -238,5 +238,28 @@
         }
       }
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Input names",
+        "description": "Give the receiver's HDMI inputs your own names, for example PS5 or Apple TV. They are used in the media player's source list and on the input buttons. Leave a field empty to keep Sony's name ({defaults}).",
+        "data": {
+          "name_bd_dvd": "BD/DVD input",
+          "name_game": "GAME input",
+          "name_sat_catv": "SAT/CATV input",
+          "name_video": "VIDEO input"
+        },
+        "data_description": {
+          "name_bd_dvd": "Name shown for the BD/DVD input.",
+          "name_game": "Name shown for the GAME input.",
+          "name_sat_catv": "Name shown for the SAT/CATV input.",
+          "name_video": "Name shown for the VIDEO input."
+        }
+      }
+    },
+    "error": {
+      "duplicate_input_name": "Each input needs a different name, also different from TV, SA-CD/CD and TUNER."
+    }
   }
 }

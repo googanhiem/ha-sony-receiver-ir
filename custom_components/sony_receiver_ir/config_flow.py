@@ -7,7 +7,12 @@ from homeassistant.components.infrared import (
     async_get_emitters,
     async_get_receivers,
 )
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlowWithReload,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import AbortFlow
 from homeassistant.helpers import entity_registry as er
@@ -22,6 +27,9 @@ from .const import (
     CONF_INFRARED_RECEIVER_ENTITY_ID,
     CONF_MODEL,
     DOMAIN,
+    FIXED_INPUTS,
+    RENAMEABLE_INPUTS,
+    input_name,
 )
 
 try:  # Home Assistant 2026.11+ validates with probatio.
@@ -64,6 +72,15 @@ class SonyReceiverIrConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Sony Receiver IR."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    @override
+    def async_get_options_flow(
+        config_entry: ConfigEntry,
+    ) -> "SonyReceiverIrOptionsFlow":
+        """Return the options flow."""
+        return SonyReceiverIrOptionsFlow()
 
     def _entity_name(self, entity_id: str) -> str:
         """Return the friendly name of an entity for the entry title."""
@@ -142,4 +159,42 @@ class SonyReceiverIrConfigFlow(ConfigFlow, domain=DOMAIN):
                 _receiver_schema(self.hass), entry.data
             ),
             errors=errors,
+        )
+
+
+INPUT_NAMES_SCHEMA = vol.Schema(
+    {vol.Optional(option_key): TextSelector() for option_key in RENAMEABLE_INPUTS}
+)
+
+
+class SonyReceiverIrOptionsFlow(OptionsFlowWithReload):
+    """Rename the receiver's HDMI inputs."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle the input names."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            options = {
+                key: name
+                for key in RENAMEABLE_INPUTS
+                if (name := str(user_input.get(key) or "").strip())
+            }
+            names = [input_name(options, key) for key in RENAMEABLE_INPUTS]
+            all_names = [name.casefold() for name in (*names, *FIXED_INPUTS)]
+            if len(set(all_names)) != len(all_names):
+                errors["base"] = "duplicate_input_name"
+            else:
+                return self.async_create_entry(data=options)
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=self.add_suggested_values_to_schema(
+                INPUT_NAMES_SCHEMA, user_input or self.config_entry.options
+            ),
+            errors=errors,
+            description_placeholders={
+                "defaults": ", ".join(RENAMEABLE_INPUTS.values()),
+            },
         )
