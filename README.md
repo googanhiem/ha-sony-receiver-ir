@@ -16,6 +16,12 @@ to the original Sony remote through an infrared receiver.
 > should work, but they are untested. Reports from other models, working or
 > not, are welcome as issues.
 
+## Screenshot
+
+The **Sony AV Receiver** device page in Home Assistant, controlling a Sony STR-DH820:
+
+<img src="docs/screenshot.png" alt="Sony AV Receiver device page in Home Assistant" width="700">
+
 ## Requirements
 
 - Home Assistant **2026.8** or newer. It needs the `infrared` integration
