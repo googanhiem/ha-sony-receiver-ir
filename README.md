@@ -49,7 +49,7 @@ Copy `custom_components/sony_receiver_ir` into your Home Assistant
 | --- | --- |
 | **Model** | Optional, e.g. `STR-DH820`. Only used to name the device. |
 | **Infrared emitter** | Used to send commands. Needed for the media player and buttons. |
-| **Infrared receiver** | Optional. Turns presses on the original remote into events. |
+| **Infrared receiver** | Optional. Turns presses on the original remote into events, and keeps the media player in step with the remote. |
 
 At least one emitter or receiver is required. You can change all of these
 later with *Reconfigure*.
@@ -67,6 +67,23 @@ button entity IDs (e.g. `button.sony_av_receiver_game`) stay the same, so
 existing automations keep working. Each input needs a different name, which
 must also differ from TV, SA-CD/CD and TUNER.
 
+### Following the physical remote
+
+With a receiver set up, the same *Configure* screen also has **Track
+physical remote**. It's on by default. The device's included remote control
+will update the state in Home Assistant. Note: sometimes button presses may
+be missed, causing the device to go out of sync.
+
+When it's on, the media player follows the original remote:
+
+- **Power on** and **Power off** set the power state, and **Power** flips it.
+- The input keys (BD/DVD, GAME, SAT/CATV, VIDEO, TV, SA-CD/CD, TUNER) set the
+  source, using your own names if you renamed the inputs.
+- **VIDEO 3** clears the source, since it isn't in the source list.
+
+The `event` entity keeps firing either way. Turn the option off if you only
+want Home Assistant's own commands to change the state.
+
 ## What you get
 
 All entities belong to one device, **Sony AV Receiver**.
@@ -82,8 +99,10 @@ All entities belong to one device, **Sony AV Receiver**.
 
 - IR only sends, so the integration never reads anything from the receiver.
   Power state and input are *assumed* from the last command Home Assistant
-  sent, and are restored after a restart. Using the original remote does not
-  change the media player state.
+  sent, or the last key the receiver picked up from the original remote (see
+  [Following the physical remote](#following-the-physical-remote)), and are
+  restored after a restart. They can drift if the receiver misses a key, or
+  the receiver is switched some other way, like HDMI-CEC.
 - There is no volume level; volume is up/down steps only.
 - Mute is a toggle on Sony receivers.
 - The sound field keys (2CH, A.F.D., Movie, Music) cycle through the modes of

@@ -3,6 +3,7 @@
 import pytest
 
 from custom_components.sony_receiver_ir.codes import SonyReceiverCode
+from custom_components.sony_receiver_ir.const import CONF_TRACK_PHYSICAL_REMOTE
 from homeassistant.components.media_player import (
     ATTR_INPUT_SOURCE,
     ATTR_INPUT_SOURCE_LIST,
@@ -54,6 +55,7 @@ async def test_rename_inputs(
     assert dict(init_integration.options) == {
         "name_bd_dvd": "Apple TV",
         "name_game": "PS5",
+        CONF_TRACK_PHYSICAL_REMOTE: True,
     }
 
     state = hass.states.get(MEDIA_PLAYER)
@@ -93,7 +95,7 @@ async def test_rename_back_to_defaults(
     await _rename(hass, init_integration, {"name_game": "PS5"})
     result = await _rename(hass, init_integration, {})
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert dict(init_integration.options) == {}
+    assert dict(init_integration.options) == {CONF_TRACK_PHYSICAL_REMOTE: True}
     assert hass.states.get(MEDIA_PLAYER).attributes[ATTR_INPUT_SOURCE_LIST][:4] == [
         "BD/DVD",
         "GAME",
@@ -120,3 +122,35 @@ async def test_duplicate_names(
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {"base": "duplicate_input_name"}
     assert dict(init_integration.options) == {}
+
+
+async def test_turn_off_remote_tracking(
+    hass: HomeAssistant, init_integration: MockConfigEntry
+) -> None:
+    """Test the remote tracking toggle is saved alongside the input names."""
+    result = await _rename(
+        hass, init_integration, {"name_game": "PS5", CONF_TRACK_PHYSICAL_REMOTE: False}
+    )
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert dict(init_integration.options) == {
+        "name_game": "PS5",
+        CONF_TRACK_PHYSICAL_REMOTE: False,
+    }
+
+
+@pytest.mark.parametrize("has_receiver", [False])
+async def test_no_remote_tracking_without_receiver(
+    hass: HomeAssistant, init_integration: MockConfigEntry
+) -> None:
+    """Test the toggle is hidden and not saved without a receiver."""
+    result = await hass.config_entries.options.async_init(init_integration.entry_id)
+    assert CONF_TRACK_PHYSICAL_REMOTE not in result["data_schema"].schema
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input={"name_game": "PS5"}
+    )
+    await hass.async_block_till_done()
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert dict(init_integration.options) == {"name_game": "PS5"}

@@ -15,10 +15,11 @@ from homeassistant.components.infrared import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .codes import RECEIVER_ADDRESSES, SircFrame, SonyReceiverCode, decode_sirc
-from .const import CONF_INFRARED_RECEIVER_ENTITY_ID
+from .const import CONF_INFRARED_RECEIVER_ENTITY_ID, SIGNAL_RECEIVED_COMMAND
 from .entity import SonyReceiverIrEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -59,6 +60,7 @@ class SonyReceiverIrReceivedCommandEvent(
         """Initialize the event entity."""
         super().__init__(entry, unique_id_suffix="received_command")
         self._infrared_receiver_entity_id = receiver_entity_id
+        self._signal = SIGNAL_RECEIVED_COMMAND.format(entry.entry_id)
         self._last_frame: SircFrame | None = None
         self._last_frame_time = 0.0
 
@@ -100,3 +102,4 @@ class SonyReceiverIrReceivedCommandEvent(
             },
         )
         self.async_write_ha_state()
+        async_dispatcher_send(self.hass, self._signal, event_type)

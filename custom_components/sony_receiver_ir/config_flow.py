@@ -17,6 +17,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import AbortFlow
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.selector import (
+    BooleanSelector,
     EntitySelector,
     EntitySelectorConfig,
     TextSelector,
@@ -26,6 +27,8 @@ from .const import (
     CONF_INFRARED_ENTITY_ID,
     CONF_INFRARED_RECEIVER_ENTITY_ID,
     CONF_MODEL,
+    CONF_TRACK_PHYSICAL_REMOTE,
+    DEFAULT_TRACK_PHYSICAL_REMOTE,
     DOMAIN,
     FIXED_INPUTS,
     RENAMEABLE_INPUTS,
@@ -168,15 +171,18 @@ INPUT_NAMES_SCHEMA = vol.Schema(
 
 
 class SonyReceiverIrOptionsFlow(OptionsFlowWithReload):
-    """Rename the receiver's HDMI inputs."""
+    """Rename the receiver's HDMI inputs and choose whether to follow the remote."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Handle the input names."""
+        """Handle the input names and remote tracking."""
+        has_receiver = bool(
+            self.config_entry.data.get(CONF_INFRARED_RECEIVER_ENTITY_ID)
+        )
         errors: dict[str, str] = {}
         if user_input is not None:
-            options = {
+            options: dict[str, Any] = {
                 key: name
                 for key in RENAMEABLE_INPUTS
                 if (name := str(user_input.get(key) or "").strip())
@@ -186,12 +192,26 @@ class SonyReceiverIrOptionsFlow(OptionsFlowWithReload):
             if len(set(all_names)) != len(all_names):
                 errors["base"] = "duplicate_input_name"
             else:
+                if has_receiver:
+                    options[CONF_TRACK_PHYSICAL_REMOTE] = user_input[
+                        CONF_TRACK_PHYSICAL_REMOTE
+                    ]
                 return self.async_create_entry(data=options)
 
+        schema = INPUT_NAMES_SCHEMA
+        if has_receiver:
+            schema = schema.extend(
+                {
+                    vol.Required(
+                        CONF_TRACK_PHYSICAL_REMOTE,
+                        default=DEFAULT_TRACK_PHYSICAL_REMOTE,
+                    ): BooleanSelector(),
+                }
+            )
         return self.async_show_form(
             step_id="init",
             data_schema=self.add_suggested_values_to_schema(
-                INPUT_NAMES_SCHEMA, user_input or self.config_entry.options
+                schema, user_input or self.config_entry.options
             ),
             errors=errors,
             description_placeholders={
