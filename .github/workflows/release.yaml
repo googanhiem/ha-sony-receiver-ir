@@ -1,28 +1,36 @@
 name: Release
 
-# Push a tag with the manifest version (for example 0.2.0) to publish a full
-# GitHub release. The Marketplace and HACS install from releases.
+# Publish a full GitHub release whenever main has a manifest version that has
+# no release yet. The Marketplace and HACS install from releases. To release,
+# bump "version" in manifest.json and push to main.
 on:
   push:
-    tags:
-      - "[0-9]+.[0-9]+.[0-9]+"
+    branches:
+      - main
+    paths:
+      - custom_components/sony_receiver_ir/manifest.json
+      - .github/workflows/release.yaml
+  workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check the tag matches the manifest version
-        run: |
-          version=$(jq -r .version custom_components/sony_receiver_ir/manifest.json)
-          if [ "$version" != "$GITHUB_REF_NAME" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match manifest version $version"
-            exit 1
-          fi
-      - name: Publish the release
+      - name: Publish the release for the manifest version
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --generate-notes
+        run: |
+          version=$(jq -r .version custom_components/sony_receiver_ir/manifest.json)
+          if gh release view "$version" > /dev/null 2>&1; then
+            echo "Release $version already exists"
+            exit 0
+          fi
+          gh release create "$version" --target "$GITHUB_SHA" --title "$version" --generate-notes
