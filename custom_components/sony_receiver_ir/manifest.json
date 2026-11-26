@@ -1,13 +1,20 @@
 {
   "domain": "sony_receiver_ir",
   "name": "Sony Receiver IR",
-  "codeowners": ["@googanhiem"],
+  "categories": [
+    "media_entertainment.speakers_audio"
+  ],
+  "codeowners": [
+    "@googanhiem"
+  ],
   "config_flow": true,
-  "dependencies": ["infrared"],
+  "dependencies": [
+    "infrared"
+  ],
   "documentation": "https://github.com/googanhiem/ha-sony-receiver-ir",
   "integration_type": "device",
   "iot_class": "assumed_state",
   "issue_tracker": "https://github.com/googanhiem/ha-sony-receiver-ir/issues",
   "requirements": [],
-  "version": "0.1.0"
+  "version": "0.2.0"
 }
