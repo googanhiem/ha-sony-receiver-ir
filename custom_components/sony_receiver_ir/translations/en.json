@@ -257,7 +257,7 @@
           "name_game": "Name shown for the GAME input.",
           "name_sat_catv": "Name shown for the SAT/CATV input.",
           "name_video": "Name shown for the VIDEO input.",
-          "update_state": "It will just send IR commands and not update the state of the device. Use this if the device's state cannot be accurately tracked by Home Assistant.",
+          "update_state": "Automatically updates the device's state in Home Assistant when IR commands are sent. Turn this off if its state cannot be reliably tracked.",
           "track_physical_remote": "The device's included remote control will update the state in Home Assistant. Note: sometimes button presses may be missed, causing the device to go out of sync."
         }
       }
