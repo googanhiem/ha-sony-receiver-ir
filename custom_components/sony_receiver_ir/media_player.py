@@ -21,7 +21,9 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from .codes import SIRC_FRAMES_PER_COMMAND, SonyReceiverCode, SonyRepeatedCommand
 from .const import (
     CONF_INFRARED_ENTITY_ID,
+    CONF_STATELESS,
     CONF_TRACK_PHYSICAL_REMOTE,
+    DEFAULT_STATELESS,
     DEFAULT_TRACK_PHYSICAL_REMOTE,
     DOMAIN,
     SIGNAL_RECEIVED_COMMAND,
@@ -102,7 +104,8 @@ class SonyReceiverIrMediaPlayer(
 
     Infrared is one-way, so power state and source are assumed from the last
     command sent, or the last key received from the remote, and restored
-    across restarts.
+    across restarts. In stateless mode there is no state at all: the entity
+    only sends commands.
     """
 
     _attr_name = None
@@ -128,14 +131,19 @@ class SonyReceiverIrMediaPlayer(
             code.name.lower(): source for source, code in self._source_to_code.items()
         }
         self._signal = SIGNAL_RECEIVED_COMMAND.format(entry.entry_id)
-        self._track_physical_remote = entry.options.get(
+        self._stateless = entry.options.get(CONF_STATELESS, DEFAULT_STATELESS)
+        self._track_physical_remote = not self._stateless and entry.options.get(
             CONF_TRACK_PHYSICAL_REMOTE, DEFAULT_TRACK_PHYSICAL_REMOTE
         )
+        if self._stateless:
+            self._attr_state = None
 
     @override
     async def async_added_to_hass(self) -> None:
         """Restore the assumed state and follow keys received from the remote."""
         await super().async_added_to_hass()
+        if self._stateless:
+            return
         if self._track_physical_remote:
             self.async_on_remove(
                 async_dispatcher_connect(
@@ -170,6 +178,19 @@ class SonyReceiverIrMediaPlayer(
             return
         self.async_write_ha_state()
 
+    @callback
+    def _async_set_assumed_state(
+        self, *, state: MediaPlayerState | None = None, source: str | None = None
+    ) -> None:
+        """Remember the state a sent command puts the device in, unless stateless."""
+        if self._stateless:
+            return
+        if state is not None:
+            self._attr_state = state
+        if source is not None:
+            self._attr_source = source
+        self.async_write_ha_state()
+
     async def _send(self, code: SonyReceiverCode) -> None:
         """Send a code to the receiver."""
         await self._send_command(code.to_command())
@@ -178,15 +199,13 @@ class SonyReceiverIrMediaPlayer(
     async def async_turn_on(self) -> None:
         """Turn on the receiver."""
         await self._send(SonyReceiverCode.POWER_ON)
-        self._attr_state = MediaPlayerState.ON
-        self.async_write_ha_state()
+        self._async_set_assumed_state(state=MediaPlayerState.ON)
 
     @override
     async def async_turn_off(self) -> None:
         """Turn off the receiver."""
         await self._send(SonyReceiverCode.POWER_OFF)
-        self._attr_state = MediaPlayerState.OFF
-        self.async_write_ha_state()
+        self._async_set_assumed_state(state=MediaPlayerState.OFF)
 
     @override
     async def async_volume_up(self) -> None:
@@ -213,8 +232,7 @@ class SonyReceiverIrMediaPlayer(
                 translation_placeholders={"source": source},
             )
         await self._send(code)
-        self._attr_source = source
-        self.async_write_ha_state()
+        self._async_set_assumed_state(source=source)
 
     async def async_send_sirc(
         self, address: int, address_bits: int, command: int, frames: int

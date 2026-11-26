@@ -84,6 +84,20 @@ When it's on, the media player follows the original remote:
 The `event` entity keeps firing either way. Turn the option off if you only
 want Home Assistant's own commands to change the state.
 
+### Stateless mode
+
+Turn on **Stateless (buttons only)** on the same *Configure* screen if you
+don't want Home Assistant to guess the receiver's state at all. The media
+player then shows no state (*Unknown*) and no source; turning it on or off,
+changing the volume or picking a source just sends the command, like
+pressing a button on the remote. Nothing is remembered across restarts.
+
+While Stateless is on, **Track physical remote** is greyed out and has no
+effect; its setting is kept and applies again when you turn Stateless off.
+Home Assistant forms can't change while you're filling them in, so the
+greying out shows the next time you open *Configure*. The `event` entity and
+the buttons work the same in both modes.
+
 ## What you get
 
 All entities belong to one device, **Sony AV Receiver**.
@@ -101,8 +115,9 @@ All entities belong to one device, **Sony AV Receiver**.
   Power state and input are *assumed* from the last command Home Assistant
   sent, or the last key the receiver picked up from the original remote (see
   [Following the physical remote](#following-the-physical-remote)), and are
-  restored after a restart. They can drift if the receiver misses a key, or
-  the receiver is switched some other way, like HDMI-CEC.
+  restored after a restart. [Stateless mode](#stateless-mode) turns this off.
+  They can drift if the receiver misses a key, or the receiver is switched
+  some other way, like HDMI-CEC.
 - There is no volume level; volume is up/down steps only.
 - Mute is a toggle on Sony receivers.
 - The sound field keys (2CH, A.F.D., Movie, Music) cycle through the modes of

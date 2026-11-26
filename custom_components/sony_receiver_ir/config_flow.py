@@ -18,6 +18,7 @@ from homeassistant.data_entry_flow import AbortFlow
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.selector import (
     BooleanSelector,
+    BooleanSelectorConfig,
     EntitySelector,
     EntitySelectorConfig,
     TextSelector,
@@ -27,7 +28,9 @@ from .const import (
     CONF_INFRARED_ENTITY_ID,
     CONF_INFRARED_RECEIVER_ENTITY_ID,
     CONF_MODEL,
+    CONF_STATELESS,
     CONF_TRACK_PHYSICAL_REMOTE,
+    DEFAULT_STATELESS,
     DEFAULT_TRACK_PHYSICAL_REMOTE,
     DOMAIN,
     FIXED_INPUTS,
@@ -171,12 +174,12 @@ INPUT_NAMES_SCHEMA = vol.Schema(
 
 
 class SonyReceiverIrOptionsFlow(OptionsFlowWithReload):
-    """Rename the receiver's HDMI inputs and choose whether to follow the remote."""
+    """Rename the HDMI inputs and choose how the receiver's state is kept."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Handle the input names and remote tracking."""
+        """Handle the input names, stateless mode and remote tracking."""
         has_receiver = bool(
             self.config_entry.data.get(CONF_INFRARED_RECEIVER_ENTITY_ID)
         )
@@ -192,20 +195,31 @@ class SonyReceiverIrOptionsFlow(OptionsFlowWithReload):
             if len(set(all_names)) != len(all_names):
                 errors["base"] = "duplicate_input_name"
             else:
+                options[CONF_STATELESS] = user_input.get(
+                    CONF_STATELESS, DEFAULT_STATELESS
+                )
                 if has_receiver:
-                    options[CONF_TRACK_PHYSICAL_REMOTE] = user_input[
-                        CONF_TRACK_PHYSICAL_REMOTE
-                    ]
+                    # Keep the remote tracking choice while it is greyed out, so
+                    # it comes back when stateless mode is turned off again.
+                    options[CONF_TRACK_PHYSICAL_REMOTE] = user_input.get(
+                        CONF_TRACK_PHYSICAL_REMOTE,
+                        self.config_entry.options.get(
+                            CONF_TRACK_PHYSICAL_REMOTE, DEFAULT_TRACK_PHYSICAL_REMOTE
+                        ),
+                    )
                 return self.async_create_entry(data=options)
 
-        schema = INPUT_NAMES_SCHEMA
+        stateless = self.config_entry.options.get(CONF_STATELESS, DEFAULT_STATELESS)
+        schema = INPUT_NAMES_SCHEMA.extend(
+            {vol.Required(CONF_STATELESS, default=DEFAULT_STATELESS): BooleanSelector()}
+        )
         if has_receiver:
             schema = schema.extend(
                 {
-                    vol.Required(
+                    vol.Optional(
                         CONF_TRACK_PHYSICAL_REMOTE,
                         default=DEFAULT_TRACK_PHYSICAL_REMOTE,
-                    ): BooleanSelector(),
+                    ): BooleanSelector(BooleanSelectorConfig(read_only=stateless)),
                 }
             )
         return self.async_show_form(

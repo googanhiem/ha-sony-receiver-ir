@@ -243,12 +243,13 @@
     "step": {
       "init": {
         "title": "Receiver options",
-        "description": "Give the receiver's HDMI inputs your own names, for example PS5 or Apple TV. They are used in the media player's source list and on the input buttons. Leave a field empty to keep Sony's name ({defaults}). If an infrared receiver is set up, you can also choose whether the remote updates the state.",
+        "description": "Give the receiver's HDMI inputs your own names, for example PS5 or Apple TV. They are used in the media player's source list and on the input buttons. Leave a field empty to keep Sony's name ({defaults}). Below them, choose how Home Assistant keeps the receiver's state. Track physical remote only appears when an infrared receiver is set up.",
         "data": {
           "name_bd_dvd": "BD/DVD input",
           "name_game": "GAME input",
           "name_sat_catv": "SAT/CATV input",
           "name_video": "VIDEO input",
+          "stateless": "Stateless (buttons only)",
           "track_physical_remote": "Track physical remote"
         },
         "data_description": {
@@ -256,6 +257,7 @@
           "name_game": "Name shown for the GAME input.",
           "name_sat_catv": "Name shown for the SAT/CATV input.",
           "name_video": "Name shown for the VIDEO input.",
+          "stateless": "Don't keep any power or input state. The media player shows no state and only sends commands, like pressing buttons on a remote. While this is on, Track physical remote is greyed out and has no effect.",
           "track_physical_remote": "The device's included remote control will update the state in Home Assistant. Note: sometimes button presses may be missed, causing the device to go out of sync."
         }
       }
