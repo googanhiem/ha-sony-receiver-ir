@@ -28,14 +28,15 @@ from .const import (
     CONF_INFRARED_ENTITY_ID,
     CONF_INFRARED_RECEIVER_ENTITY_ID,
     CONF_MODEL,
-    CONF_STATELESS,
     CONF_TRACK_PHYSICAL_REMOTE,
-    DEFAULT_STATELESS,
+    CONF_UPDATE_STATE,
     DEFAULT_TRACK_PHYSICAL_REMOTE,
+    DEFAULT_UPDATE_STATE,
     DOMAIN,
     FIXED_INPUTS,
     RENAMEABLE_INPUTS,
     input_name,
+    update_state_enabled,
 )
 
 try:  # Home Assistant 2026.11+ validates with probatio.
@@ -179,7 +180,7 @@ class SonyReceiverIrOptionsFlow(OptionsFlowWithReload):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Handle the input names, stateless mode and remote tracking."""
+        """Handle the input names, updating the state and remote tracking."""
         has_receiver = bool(
             self.config_entry.data.get(CONF_INFRARED_RECEIVER_ENTITY_ID)
         )
@@ -195,12 +196,12 @@ class SonyReceiverIrOptionsFlow(OptionsFlowWithReload):
             if len(set(all_names)) != len(all_names):
                 errors["base"] = "duplicate_input_name"
             else:
-                options[CONF_STATELESS] = user_input.get(
-                    CONF_STATELESS, DEFAULT_STATELESS
+                options[CONF_UPDATE_STATE] = user_input.get(
+                    CONF_UPDATE_STATE, DEFAULT_UPDATE_STATE
                 )
                 if has_receiver:
                     # Keep the remote tracking choice while it is greyed out, so
-                    # it comes back when stateless mode is turned off again.
+                    # it comes back when Update state is turned on again.
                     options[CONF_TRACK_PHYSICAL_REMOTE] = user_input.get(
                         CONF_TRACK_PHYSICAL_REMOTE,
                         self.config_entry.options.get(
@@ -209,9 +210,13 @@ class SonyReceiverIrOptionsFlow(OptionsFlowWithReload):
                     )
                 return self.async_create_entry(data=options)
 
-        stateless = self.config_entry.options.get(CONF_STATELESS, DEFAULT_STATELESS)
+        update_state = update_state_enabled(self.config_entry.options)
         schema = INPUT_NAMES_SCHEMA.extend(
-            {vol.Required(CONF_STATELESS, default=DEFAULT_STATELESS): BooleanSelector()}
+            {
+                vol.Required(
+                    CONF_UPDATE_STATE, default=DEFAULT_UPDATE_STATE
+                ): BooleanSelector()
+            }
         )
         if has_receiver:
             schema = schema.extend(
@@ -219,13 +224,17 @@ class SonyReceiverIrOptionsFlow(OptionsFlowWithReload):
                     vol.Optional(
                         CONF_TRACK_PHYSICAL_REMOTE,
                         default=DEFAULT_TRACK_PHYSICAL_REMOTE,
-                    ): BooleanSelector(BooleanSelectorConfig(read_only=stateless)),
+                    ): BooleanSelector(
+                        BooleanSelectorConfig(read_only=not update_state)
+                    ),
                 }
             )
         return self.async_show_form(
             step_id="init",
             data_schema=self.add_suggested_values_to_schema(
-                schema, user_input or self.config_entry.options
+                schema,
+                user_input
+                or {**self.config_entry.options, CONF_UPDATE_STATE: update_state},
             ),
             errors=errors,
             description_placeholders={

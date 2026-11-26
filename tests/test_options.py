@@ -55,7 +55,7 @@ async def test_rename_inputs(
     assert dict(init_integration.options) == {
         "name_bd_dvd": "Apple TV",
         "name_game": "PS5",
-        "stateless": False,
+        "update_state": True,
         CONF_TRACK_PHYSICAL_REMOTE: True,
     }
 
@@ -97,7 +97,7 @@ async def test_rename_back_to_defaults(
     result = await _rename(hass, init_integration, {})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert dict(init_integration.options) == {
-        "stateless": False,
+        "update_state": True,
         CONF_TRACK_PHYSICAL_REMOTE: True,
     }
     assert hass.states.get(MEDIA_PLAYER).attributes[ATTR_INPUT_SOURCE_LIST][:4] == [
@@ -139,7 +139,7 @@ async def test_turn_off_remote_tracking(
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert dict(init_integration.options) == {
         "name_game": "PS5",
-        "stateless": False,
+        "update_state": True,
         CONF_TRACK_PHYSICAL_REMOTE: False,
     }
 
@@ -158,4 +158,4 @@ async def test_no_remote_tracking_without_receiver(
     await hass.async_block_till_done()
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert dict(init_integration.options) == {"name_game": "PS5", "stateless": False}
+    assert dict(init_integration.options) == {"name_game": "PS5", "update_state": True}

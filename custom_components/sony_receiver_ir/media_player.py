@@ -21,13 +21,12 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from .codes import SIRC_FRAMES_PER_COMMAND, SonyReceiverCode, SonyRepeatedCommand
 from .const import (
     CONF_INFRARED_ENTITY_ID,
-    CONF_STATELESS,
     CONF_TRACK_PHYSICAL_REMOTE,
-    DEFAULT_STATELESS,
     DEFAULT_TRACK_PHYSICAL_REMOTE,
     DOMAIN,
     SIGNAL_RECEIVED_COMMAND,
     input_name,
+    update_state_enabled,
 )
 from .entity import SonyReceiverIrEntity
 
@@ -104,8 +103,8 @@ class SonyReceiverIrMediaPlayer(
 
     Infrared is one-way, so power state and source are assumed from the last
     command sent, or the last key received from the remote, and restored
-    across restarts. In stateless mode there is no state at all: the entity
-    only sends commands.
+    across restarts. With Update state off there is no state at all: the
+    entity only sends commands.
     """
 
     _attr_name = None
@@ -131,7 +130,7 @@ class SonyReceiverIrMediaPlayer(
             code.name.lower(): source for source, code in self._source_to_code.items()
         }
         self._signal = SIGNAL_RECEIVED_COMMAND.format(entry.entry_id)
-        self._stateless = entry.options.get(CONF_STATELESS, DEFAULT_STATELESS)
+        self._stateless = not update_state_enabled(entry.options)
         self._track_physical_remote = not self._stateless and entry.options.get(
             CONF_TRACK_PHYSICAL_REMOTE, DEFAULT_TRACK_PHYSICAL_REMOTE
         )
@@ -182,7 +181,7 @@ class SonyReceiverIrMediaPlayer(
     def _async_set_assumed_state(
         self, *, state: MediaPlayerState | None = None, source: str | None = None
     ) -> None:
-        """Remember the state a sent command puts the device in, unless stateless."""
+        """Remember the state a sent command puts the device in, if updating state."""
         if self._stateless:
             return
         if state is not None:
